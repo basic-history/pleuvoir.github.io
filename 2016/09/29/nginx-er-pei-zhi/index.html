@@ -1,0 +1,825 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+    
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Nginx（二） 配置, 撄而后成">
+    <meta name="description" content="一、 目录结构源码包编译以后的目录结构如下：
+•    conf   配置文件•    html   静态网页文件（存放静态文件，做静态资源服务）•    logs   日志文件•    sbin   二进制程序
+nginx 中最重要的配置">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Nginx（二） 配置 | 撄而后成</title>
+    <link rel="icon" type="image/png" href="/favicon.ico">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/css/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+</head>
+
+</head>
+
+<body>
+
+<header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="container">
+            <div class="nav-wrapper">
+                <div class="brand-logo">
+                    <a href="/" class="waves-effect waves-light">
+                        
+                        <img src="/medias/logo.png" class="logo-img hide-on-small-only">
+                        
+                        <span class="logo-span">撄而后成</span>
+                    </a>
+                </div>
+                <a href="#" data-activates="mobile-nav" class="button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
+    
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>Index</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>Tags</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>Categories</span>
+        </a>
+    </li>
+    
+    <li>
+        <a id="toggleSearch" class="waves-effect waves-light">
+            <i id="searchIcon" class="mdi-action-search"></i>
+        </a>
+    </li>
+
+</ul>
+
+<div class="side-nav" id="mobile-nav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">撄而后成</div>
+        <div class="logo-desc">
+            
+            攻其一点，不及其余
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                Index
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                Tags
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                Categories
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/pleuvoir" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+
+    <div class="social-link"><a href="https://github.com/pleuvoir" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+    <i class="fa fa-github"></i>
+</a>
+<a href="mailto:pleuvior@foxmail.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+    <i class="fa fa-envelope-open"></i>
+</a>
+<a href="#!" class="tooltipped" data-tooltip="QQ联系我: 617016730" data-position="top" data-delay="50">
+    <i class="fa fa-qq"></i>
+</a>
+</div>
+</div>
+
+            </div>
+        </div>
+
+        
+        <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/pleuvoir" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+</header>
+
+
+
+<div class="bg-cover post-cover" style="background-image: url('/images/code.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        Nginx（二） 配置
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
+
+    
+    <style>
+    #artDetail h1,
+    #artDetail h2,
+    #artDetail h3,
+    #artDetail h4,
+    #artDetail h5,
+    #artDetail h6 {
+        padding-top: 76px;
+        margin-top: -76px;
+    }
+
+    #artDetail h1 {
+        line-height: 3.3rem;
+    }
+
+    #artDetail h2 {
+        line-height: 3rem;
+    }
+
+    #artDetail h3 {
+        line-height: 2.5rem;
+    }
+
+    #artDetail h4 {
+        line-height: 2.2rem;
+    }
+
+    #artDetail h5 {
+        line-height: 1.9rem;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    .post-toc ol {
+        padding-left: 20px;
+    }
+
+    .post-toc a {
+        color: #34495e;
+        font-size: 0.96rem;
+    }
+
+    .post-toc a:hover {
+        color: #42b983;
+        text-decoration: underline;
+    }
+
+    .post-toc .active {
+        color: #42b983;
+        font-weight: 500;
+    }
+</style>
+<div class="row">
+    <div class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            
+            <div class="article-tag">
+                
+                <a href="/tags/Linux/" target="_blank">
+                    <span class="chip bg-color">Linux</span>
+                </a>
+                
+                <a href="/tags/Nginx/" target="_blank">
+                    <span class="chip bg-color">Nginx</span>
+                </a>
+                
+            </div>
+            
+            <div class="post-info">
+                
+                <span class="post-cate">
+                    <i class="fa fa-bookmark fa-fw icon-category"></i>
+                    
+                    <a href="/categories/%E6%8A%80%E6%9C%AF/" class="post-category" target="_blank">
+                        技术
+                    </a>
+                    
+                </span>
+                
+
+                <span class="post-date">
+                    <i class="fa fa-clock-o fa-fw"></i>2016-09-29
+                </span>
+            </div>
+        </div>
+        <hr>
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h3 id="一、-目录结构"><a href="#一、-目录结构" class="headerlink" title="一、 目录结构"></a>一、 目录结构</h3><p>源码包编译以后的目录结构如下：</p>
+<p>•    conf   配置文件<br>•    html   静态网页文件（存放静态文件，做静态资源服务）<br>•    logs   日志文件<br>•    sbin   二进制程序</p>
+<p>nginx 中最重要的配置文件是 conf 中的 <code>nginx.conf</code>，基本上以后只需要和它打交道。</p>
+<h3 id="二、-nginx-启停"><a href="#二、-nginx-启停" class="headerlink" title="二、 nginx 启停"></a>二、 nginx 启停</h3><pre><code class="bash">进入 sbin
+# 检测配置文件是否有错误
+./nginx -t 
+
+# 指定配置文件启动，一般是 NGINX_HOME 下 /conf/nginx.conf
+./nginx -c [nginx.conf文件]
+
+# 停止
+./nginx -s stop  
+
+# 退出
+./nginx -s quit
+
+# 重新加载 nginx.conf
+./nginx -s reload </code></pre>
+<h3 id="三、-nginx-conf-配置文件结构"><a href="#三、-nginx-conf-配置文件结构" class="headerlink" title="三、 nginx.conf 配置文件结构"></a>三、 nginx.conf 配置文件结构</h3><p>main（全局设置）<br>events 设定 nginx 的工作模式及连接数上限<br>http 服务器相关属性<br>server （虚拟主机设置）<br>upstream （上游服务器设置，主要为反向代理、负载均衡相关配置）<br>location （URL匹配特定位置后的设置）</p>
+<p><img src="https://i.imgur.com/wVQmJiM.png" alt="nginx 配置文件结构"></p>
+<pre><code>#user  nobody;                  #主模块命令， 指定Nginx的worker进程运行用户以及用户组，默认由nobody账号运行。
+worker_processes  1;            #指定Nginx要开启的进程数。
+worker_rlimit_nofile 100000;    #worker进程的最大打开文件数限制
+#error_log  logs/error.log;
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+#pid        logs/nginx.pid;
+events {
+use epoll;
+worker_connections  1024;
+}
+
+
+以上这块配置代码是对nginx全局属性的配置。
+
+user: 主模块命令，指定Nginx的worker进程运行用户以及用户组，默认由nobody账号运行。    
+
+worker_processes: 指定Nginx要开启的进程数。
+
+error log:
+用来定义全局错设日志文件的路径和日志名称。日志输出级别有debug，info，notice，warn，error，crit 可供选择，其中debug输出日志最为详细，面crit（严重）输出日志最少。默认是error
+
+pid: 用来指定进程id的存储文件位置。
+
+event：
+设定nginx的工作模式及连接数上限，其中参数use用来指定nginx的工作模式（这里是epoll，epoll是多路复用IO(I/O Multiplexing)中的一种方式）,nginx支持的工作模式有select ,poll,kqueue,epoll,rtsig,/dev/poll。其中select和poll都是标准的工作模式，kqueue和epoll是高效的工作模式，对于linux系统，epoll是首选。
+worker_connection是设置nginx每个进程最大的连接数，默认是1024，所以nginx最大的连接数max_client=worker_processes * worker_connections。
+进程最大连接数受到系统最大打开文件数的限制，需要设置ulimit。</code></pre><h3 id="四、-location-规则"><a href="#四、-location-规则" class="headerlink" title="四、 location 规则"></a>四、 location 规则</h3><p>语法规则： location [=|<del>|</del>*|^~] /uri/ {… }</p>
+<table>
+<thead>
+<tr>
+<th align="left">符号</th>
+<th align="left">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">=</td>
+<td align="left">= 开头表示精确匹配（完全相同也算精准匹配）</td>
+</tr>
+<tr>
+<td align="left">^~</td>
+<td align="left">（一般匹配）^<del>开头表示uri以某个常规字符串开头，理解为匹配 url路径即可。nginx不对url做编码，因此请求为/static/20%/aa，可以被规则^</del> /static/ /aa匹配到（注意是空格），匹配完成不再进行正则匹配</td>
+</tr>
+<tr>
+<td align="left">~</td>
+<td align="left">~ 开头表示区分大小写的正则匹配</td>
+</tr>
+<tr>
+<td align="left">~*</td>
+<td align="left">~* 开头表示不区分大小写的正则匹配</td>
+</tr>
+<tr>
+<td align="left">!<del>和!</del>*</td>
+<td align="left">!<del>和!</del>*分别为区分大小写不匹配及不区分大小写不匹配的正则</td>
+</tr>
+<tr>
+<td align="left">/</td>
+<td align="left">用户所使用的代理（一般为浏览器）</td>
+</tr>
+<tr>
+<td align="left">$http_x_forwarded_for</td>
+<td align="left">可以记录客户端IP，通过代理服务器来记录客户端的ip地址</td>
+</tr>
+<tr>
+<td align="left">$http_referer</td>
+<td align="left">可以记录用户是从哪个链接访问过来的</td>
+</tr>
+</tbody></table>
+<p>优先级</p>
+<p>普通匹配location：<br>无前缀：达到完整匹配，也是=<br>“=”<br>“^~” </p>
+<p>普通匹配满足最长匹配原则</p>
+<p>正则匹配location：<br>“<del>“ 表示区分大小写；<br>“</del>*”表示不区分大小写</p>
+<p><img src="https://i.imgur.com/tiKDPkw.png" alt=""></p>
+<h3 id="五、配置文件分离"><a href="#五、配置文件分离" class="headerlink" title="五、配置文件分离"></a>五、配置文件分离</h3><p><code>nginx</code>中配置多个<code>server(虚拟主机)</code>，为了方便维护，会将文件单独提取出来，通过导入的形式使其生效。</p>
+<p>创建配置文件存放目录</p>
+<pre><code>mkdir /etc/nginx
+mkdir /etc/nginx/conf.d
+cd /etc/nginx/conf.d/
+
+# 创建一个最基础的文件（常规的nginx服务）
+vi www.conf</code></pre><p>复制以下内容并保存</p>
+<pre><code>server {
+listen       8080;    # 监听 8080 端口
+server_name  39.105.110.40;    # 监听此 ip 的访问（一般为入口ip）
+
+location /a {                        # 如果请求的后缀是 /a 即使不加 = 也是精准匹配
+        rewrite ^/  /a.html break;    #  /a 请求返回  html/static/路径下的 a 页面
+        root   html/static/;        # 这里表示 a.html 在这个目录下
+    }
+
+location /b/a {        
+        rewrite ^/  /b.html break;    # /b/a 或 /b/a/1 请求返回 b 页面
+        root   html/static/;  
+    }
+
+location /b/d/a {
+        rewrite ^/  /d.html break;    # /b/d/a 或 /b/d/a/1 请求返回 c 页面（这里有点不符合常理，原因是精准匹配后依然后走下面的正则匹配，所以给我们看起来像是正则匹配的优先级高一样）
+        root   html/static/;
+    }
+
+location ^~/b/c/a {        # 匹配 uri 路径（常用）
+        rewrite ^/  /d.html break;    # /b/c/a 或 /b/c/a/1 请求返回 d 页面
+        root   html/static/;
+    }
+
+location ~ /b/d {
+        rewrite ^/  /c.html break;    # /b/d 或 /b/d/1 或 /b/d/a 请求返回 c 页面
+        root   html/static/;
+    }
+
+location ~ /b/d/a {
+        rewrite ^/  /a.html break;
+        root   html/static/;
+    }
+}
+</code></pre><p>修改 <code>ngxin.conf</code> 增加导入配置，当然需要删除原来相同的配置</p>
+<pre><code>include /etc/nginx/conf.d/*.conf;</code></pre><p>重启以后，测试。</p>
+<p>其中 <code>server_name</code> 可以是域名。可以通过修改 <code>windows hosts文件解析成域名，格式如此: 39.105.110.40 pleuvoir.cn</code>，注意不能加端口。</p>
+<h4 id="反向代理"><a href="#反向代理" class="headerlink" title="反向代理"></a>反向代理</h4><pre><code>location /tweets {
+    proxy_pass https://www.oschina.net/;
+}</code></pre><p>注意地址后面有没有 <code>/</code>，如果带了斜杠，表示标签是关闭的，那么 location 的 <code>/tweets</code> 不会自动带在需要访问的原始地址后面，即：如果我们目标访问地址是<code>https://www.oschina.net/tweets</code>，那么如果带了斜杠，请求地址应该为<code>pleuvoir.cn:8080/tweets/tweets</code>，此时<code>tweets</code>是不会传递到<code>tomcat</code>的后台，也就是说<code>https://www.oschina.net/ = pleuvoir.cn:8080/tweets</code>。如果没有，那么访问地址是<code>http://pleuvoir.cn:8080/tweets</code>。这里为了演示，location 的匹配直接用了 tweets，实际情况不是一样的。通过其他的规则去匹配然后再决定要不要加上这个<code>/</code>。</p>
+<h4 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h4><p>1、轮询（默认）</p>
+<pre><code>upstream nginx {
+server 172.17.0.4:8081;
+server 172.17.0.5:8081;
+}</code></pre><p>每个请求按时间顺序逐一分配到不同的后端服务器，如果后端服务器down掉，能自动剔除。</p>
+<p>2、weight</p>
+<p>指定轮询几率，weight和访问比率成正比，用于后端服务器性能不均的情况。down 暂时不参与负载。例如：</p>
+<pre><code>upstream nginx {
+server 172.17.0.4:8081 weight=2;
+server 172.17.0.5:8081 weight=1;
+}</code></pre><p>3、ip_hash</p>
+<p>每个请求按访问ip的hash结果分配，这样同一客户端的请求总是发往同一个后端服务器，可以解决session的问题。例如：</p>
+<pre><code>upstream nginx {
+ip_hash;
+server 172.17.0.4:8081;
+server 172.17.0.5:8081;
+}</code></pre><p>演示一套负载均衡的配置，需求如下:</p>
+<p>172.17.0.2作为代理nginx<br>172.17.0.3作为静态服务器，读html文件<br>172.17.0.4为后台服务器1，提供web服务<br>172.17.0.5为后台服务器2，提供web服务</p>
+<pre><code># 1
+upstream nginx {
+server 172.17.0.4:8081 weight=2;
+server 172.17.0.5:8081 weight=1;
+}
+
+server {
+        listen       8080;
+        server_name  172.17.0.2;    
+
+        location /nginx {
+                proxy_pass http://nginx; # 对应 1 处的别名
+        }
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+    }
+
+
+html代理：
+location /static {
+    proxy_pass http://172.17.0.3/; #这里是转发到另外一台服务器，由它来提供静态文件
+}</code></pre><h4 id="gzip-压缩"><a href="#gzip-压缩" class="headerlink" title="gzip 压缩"></a>gzip 压缩</h4><p>对输出到客户端的内容进行压缩，以减小传输文件体积，减少对网络带宽的占用。服务器端要压缩，客户端必须解压缩，这都将占用cpu时间。不过，由于传输内容减小了，传输过程中，各网卡、路由器、交换机对数据包的处理时间也会缩短。gzip压缩是就在这里赢得了时间。</p>
+<p>必须满足以下几个条件：</p>
+<p>1、客户端发送的HTTP报头必须含有 “Accept-Encoding” 字段，且其值包含 “gzip” 这个压缩类型。<br>一般浏览器都会发 “Accept-Encoding:gzip, deflate, sdch” 这样的报头。</p>
+<p>2、服务器启用了gzip压缩，那么响应头会包含 Content-Encoding:gzip， 客户端根据这个来判断服务器返回的内容是否真正为gzip压缩过的内容。</p>
+<p>gzip压缩对文本文件压缩效果非常好（40%～80%），而对图片文件效果甚微。实际应用中可以考虑对js、html、css格式的文件开启gzip压缩。</p>
+<pre><code>location ~ /(.*)\.(html|js|css|jpg|jpeg|png|gif)$ {
+    gzip on; # 启用gzip压缩，默认是off，不启用
+
+    # 对js、css、jpg、png、gif格式的文件启用gzip压缩功能
+    gzip_types application/javascript text/css image/jpeg image/png image/gif;
+    gzip_min_length 1024; # 所压缩文件的最小值，小于这个的不会压缩
+    gzip_buffers 4 1k; # 设置压缩响应的缓冲块的大小和个数，默认是内存一个页的大小
+    gzip_comp_level 1; # 压缩水平，默认1。取值范围1-9，取值越大压缩比率越大，但越耗cpu时间
+
+    root html/gzip; # 这行和 gzip 压缩无关，表示文件目录
+}</code></pre>
+            </div>
+            <hr/>
+
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            <div class="reprint">
+                <p>
+                    <span class="reprint-tip">转载请注明: </span>
+                    <a href="https://pleuvoir.github.io" class="b-link-green">撄而后成</a>
+                    <i class="fa fa-angle-right fa-lg fa-fw text-color"></i>
+                    <a href="/2016/09/29/nginx-er-pei-zhi/" class="b-link-green">Nginx（二） 配置</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    
+        <link rel="stylesheet" href="/libs/gitalk/gitalk.css">
+<link rel="stylesheet" href="/css/my-gitalk.css">
+
+<div class="card gitalk-card" data-aos="fade-up">
+    <div id="gitalk-container" class="card-content"></div>
+</div>
+
+<script src="/libs/gitalk/gitalk.min.js"></script>
+<script>
+    let gitalk = new Gitalk({
+        clientID: '9b46722e838fce0cf835',
+        clientSecret: 'b1dc5f5d1f5cdd0e9d0cf74eb2984b15a575dd22',
+        repo: 'pleuvoir.github.io',
+        owner: 'pleuvoir',
+        admin: ["pleuvoir"],
+        id: '2016-09-29T12-00-00',
+        distractionFreeMode: false  // Facebook-like distraction free mode
+    });
+
+    gitalk.render('gitalk-container');
+</script>
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">上一篇</div>
+            <div class="card">
+                <a href="/2016/09/30/nginx-san-jie-jue-kua-yu/">
+                    <div class="card-image">
+                        
+                        <img src="/images/code.jpg" class="responsive-img" alt="Nginx（三） 解决跨域">
+                        
+                        <span class="card-title">Nginx（三） 解决跨域</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary">浏览器跨域问题跨域是指从一个域名的网页去请求另一个域名的资源。
+添加header头： Access-Control-Allow-Origin，表明允许网站执行
+简单请求：浏览器在跨源AJAX请求的头信息之中，自动在添加一个Origin字段（</div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2016-09-30
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%8A%80%E6%9C%AF/" class="post-category" target="_blank">
+                                    技术
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/Linux/" target="_blank">
+                        <span class="chip bg-color">Linux</span>
+                    </a>
+                    
+                    <a href="/tags/Nginx/" target="_blank">
+                        <span class="chip bg-color">Nginx</span>
+                    </a>
+                    
+                    <a href="/tags/%E8%B7%A8%E5%9F%9F/" target="_blank">
+                        <span class="chip bg-color">跨域</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">下一篇</div>
+            <div class="card">
+                <a href="/2016/09/28/nginx-yi-jian-jie-yu-an-zhuang/">
+                    <div class="card-image">
+                        
+                        <img src="/images/code.jpg" class="responsive-img" alt="Nginx（一） 简介与安装">
+                        
+                        <span class="card-title">Nginx（一） 简介与安装</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary">一、Nginx 简介ApacheApache 仍然是市场占用量最高的 web 服务器，据最新数据统计，市场占有率目前是 50% 左右。主要优势在于一个是比较早出现的一个 Http 静态资源服务器，同时又是开源的。所以在技术上的支持以及市面上</div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2016-09-28
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%8A%80%E6%9C%AF/" class="post-category" target="_blank">
+                                    技术
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/Linux/" target="_blank">
+                        <span class="chip bg-color">Linux</span>
+                    </a>
+                    
+                    <a href="/tags/Nginx/" target="_blank">
+                        <span class="chip bg-color">Nginx</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
+    </div>
+    <div class="col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <h4>目录</h4>
+            <div id="toc-content">
+                <ol class="post-toc"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#一、-目录结构"><span class="post-toc-text">一、 目录结构</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#二、-nginx-启停"><span class="post-toc-text">二、 nginx 启停</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#三、-nginx-conf-配置文件结构"><span class="post-toc-text">三、 nginx.conf 配置文件结构</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#四、-location-规则"><span class="post-toc-text">四、 location 规则</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#五、配置文件分离"><span class="post-toc-text">五、配置文件分离</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#反向代理"><span class="post-toc-text">反向代理</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#负载均衡"><span class="post-toc-text">负载均衡</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#gzip-压缩"><span class="post-toc-text">gzip 压缩</span></a></li></ol></li></ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        let tocLinks = $('#toc-content a');
+        let setTocLinkActive = function (jqObj) {
+            tocLinks.removeClass('active');
+            jqObj.addClass('active');
+        };
+
+        // 监听点击TOC目录.
+        tocLinks.on('click', function () {
+            setTocLinkActive($(this));
+        });
+
+        let titleTopArr = [];
+        $('#articleContent').find('h1, h2, h3, h4, h5, h6').each(function () {
+            titleTopArr.push({'id': $(this).attr('id'), 'top': Math.round($(this).offset().top)});
+        });
+        let titleLen = titleTopArr.length;
+
+        /* 监听滚动条.*/
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+
+            /* add post toc fixed. */
+            if (scroll > 240) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+
+            /** 以下代码为动态设置TOC激活高亮的目录. */
+            if (titleLen === 0) {
+                return;
+            }
+
+            let firstTitleObj = titleTopArr[0];
+            if (firstTitleObj.top > scroll) {
+                return;
+            } else if (firstTitleObj.top === scroll) {
+                setTocLinkActive($('#toc-content a[href="#' + firstTitleObj.id + '"]'));
+                return;
+            }
+
+            let lastTitleObj = titleTopArr[titleLen - 1];
+            if (lastTitleObj.top <= scroll) {
+                setTocLinkActive($('#toc-content a[href="#' + lastTitleObj.id + '"]'));
+                return;
+            }
+
+            for (let i = 0; i < titleLen; i++) {
+                if (titleTopArr[i].top > scroll) {
+                    setTocLinkActive($('#toc-content a[href="#' + titleTopArr[i - 1].id + '"]'));
+                    break;
+                }
+            }
+        });
+    });
+</script>
+    
+
+</main>
+
+<footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+             powered by pleuvoir using  
+            <a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">hexo-theme-matery</a>
+        </div>
+        <div class="col s12 m4 l4 social-link"><a href="https://github.com/pleuvoir" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+    <i class="fa fa-github"></i>
+</a>
+<a href="mailto:pleuvior@foxmail.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+    <i class="fa fa-envelope-open"></i>
+</a>
+<a href="#!" class="tooltipped" data-tooltip="QQ联系我: 617016730" data-position="top" data-delay="50">
+    <i class="fa fa-qq"></i>
+</a>
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+<!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title">搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input" autofocus="">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+</script>
+<!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+<script src="/libs/materialize/js/materialize.min.js"></script>
+<script src="/libs/masonry/masonry.pkgd.min.js"></script>
+<script src="/libs/aos/aos.js"></script>
+<script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+<script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+<script src="/js/matery.js"></script>
+</body>
+</html>
