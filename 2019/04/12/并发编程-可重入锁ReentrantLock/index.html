@@ -1,0 +1,848 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+    
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="并发编程-ReentrantLock, 撄而后成">
+    <meta name="description" content="今天我们来看看并发编程的可重入锁ReentrantLock，它和关键字synchronized非常的相像。ReentrantLock可以完全替代关键字synchronized，JDK6以后synchronized进行了很多的优化，所以两者在">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>并发编程-ReentrantLock | 撄而后成</title>
+    <link rel="icon" type="image/png" href="/favicon.ico">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/css/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+</head>
+
+</head>
+
+<body>
+
+<header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="container">
+            <div class="nav-wrapper">
+                <div class="brand-logo">
+                    <a href="/" class="waves-effect waves-light">
+                        
+                        <img src="/medias/logo.png" class="logo-img hide-on-small-only">
+                        
+                        <span class="logo-span">撄而后成</span>
+                    </a>
+                </div>
+                <a href="#" data-activates="mobile-nav" class="button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
+    
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>Index</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>Tags</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>Categories</span>
+        </a>
+    </li>
+    
+    <li>
+        <a id="toggleSearch" class="waves-effect waves-light">
+            <i id="searchIcon" class="mdi-action-search"></i>
+        </a>
+    </li>
+
+</ul>
+
+<div class="side-nav" id="mobile-nav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">撄而后成</div>
+        <div class="logo-desc">
+            
+            攻其一点，不及其余
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                Index
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                Tags
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                Categories
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/pleuvoir" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+
+    <div class="social-link"><a href="https://github.com/pleuvoir" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+    <i class="fa fa-github"></i>
+</a>
+<a href="mailto:pleuvior@foxmail.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+    <i class="fa fa-envelope-open"></i>
+</a>
+<a href="#!" class="tooltipped" data-tooltip="QQ联系我: 617016730" data-position="top" data-delay="50">
+    <i class="fa fa-qq"></i>
+</a>
+</div>
+</div>
+
+            </div>
+        </div>
+
+        
+        <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/pleuvoir" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+</header>
+
+
+
+<div class="bg-cover post-cover" style="background-image: url('/medias/featureimages/3.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        并发编程-ReentrantLock
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
+
+    
+    <style>
+    #artDetail h1,
+    #artDetail h2,
+    #artDetail h3,
+    #artDetail h4,
+    #artDetail h5,
+    #artDetail h6 {
+        padding-top: 76px;
+        margin-top: -76px;
+    }
+
+    #artDetail h1 {
+        line-height: 3.3rem;
+    }
+
+    #artDetail h2 {
+        line-height: 3rem;
+    }
+
+    #artDetail h3 {
+        line-height: 2.5rem;
+    }
+
+    #artDetail h4 {
+        line-height: 2.2rem;
+    }
+
+    #artDetail h5 {
+        line-height: 1.9rem;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    .post-toc ol {
+        padding-left: 20px;
+    }
+
+    .post-toc a {
+        color: #34495e;
+        font-size: 0.96rem;
+    }
+
+    .post-toc a:hover {
+        color: #42b983;
+        text-decoration: underline;
+    }
+
+    .post-toc .active {
+        color: #42b983;
+        font-weight: 500;
+    }
+</style>
+<div class="row">
+    <div class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            
+            <div class="article-tag">
+                
+                <a href="/tags/java/" target="_blank">
+                    <span class="chip bg-color">java</span>
+                </a>
+                
+                <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" target="_blank">
+                    <span class="chip bg-color">多线程</span>
+                </a>
+                
+            </div>
+            
+            <div class="post-info">
+                
+                <span class="post-cate">
+                    <i class="fa fa-bookmark fa-fw icon-category"></i>
+                    
+                    <a href="/categories/%E6%8A%80%E6%9C%AF/" class="post-category" target="_blank">
+                        技术
+                    </a>
+                    
+                </span>
+                
+
+                <span class="post-date">
+                    <i class="fa fa-clock-o fa-fw"></i>2019-04-12
+                </span>
+            </div>
+        </div>
+        <hr>
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>今天我们来看看并发编程的可重入锁<code>ReentrantLock</code>，它和关键字<code>synchronized</code>非常的相像。<code>ReentrantLock</code>可以完全替代关键字<code>synchronized</code>，JDK6以后<code>synchronized</code>进行了很多的优化，所以两者在性能上差距不大。建议能使用<code>synchronized</code>情况下优先使用，因为后续JVM还会对其实现进行持续优化。</p>
+<p>那么它比<code>synchronized</code>有哪些优点呢？</p>
+<p>1）支持公平锁和非公平锁：</p>
+<p>在大多数情况下，锁的申请都是非公平的。当线程1请求了锁A，线程2之后也请求了锁A，当锁可用时，是谁获得这个锁呢？这是不一定的，系统会从锁的等待队列中随机挑选一个，因此不能保证公平性。开启公平锁模式必须要维护一个有序队列，所以会带来性能的损失。但是公平模式会保证有序性，并且不会产生饥饿现象。</p>
+<p>2）支持响应中断以及限时获取锁：</p>
+<p>对关键字<code>synchronized</code>而言，如果一个线程正在等待一把锁，那么结果只有两种：要么等待，要么获得锁。而<code>ReentrantLock</code>为我们提供了第三种可能，那就是响应中断（等着等着不等了），这种方式对处理死锁也是有帮助的。</p>
+<p>限时获取锁指的是在一定时间内尝试获取锁，超时在不在获取返回false。</p>
+<p>3）更灵活的api</p>
+<p>这个也能算是它的一个优点，我们可以方便的控制临界区代码。</p>
+<h3 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h3><h4 id="lock"><a href="#lock" class="headerlink" title="lock"></a>lock</h4><p>还是直接来看例子：</p>
+<pre><code class="java">static ReentrantLock lock = new ReentrantLock();
+
+static int j = 0;
+
+public static void main(String[] args) throws InterruptedException {
+    Task first = new Task();
+    Task second = new Task();
+    first.start();
+    second.start();
+    first.join();
+    second.join();
+    System.out.println(j);
+}
+
+public static class Task extends Thread {
+    @Override
+    public void run() {
+        try {
+            lock.lock();
+            for (int i = 0; i &lt; 1000; i++) {
+                j++;
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+}</code></pre>
+<p>可以看到，和<code>synchronized</code>相比，<code>ReentrantLock</code>加锁和释放锁的操作都是由开发人员手动控制的，所以它有更高的灵活性。需要注意的是，锁在使用完必须释放，否则其他线程没有机会访问到临界区了。一般我们会在<code>finally</code>中进行释放。</p>
+<p>为什么叫可重入锁呢？看下面的代码就明白了：</p>
+<pre><code class="java">try {
+    lock.lock();
+    lock.lock();
+    for (int i = 0; i &lt; 1000; i++) {
+        j++;
+    }
+} finally {
+    lock.unlock();
+    lock.unlock();
+}</code></pre>
+<p>当获取到锁时再次进行获取是可以得到锁的，并不会因为自己已经持有了锁导致死锁。一定要注意，获取了几次便要释放几次锁。</p>
+<h4 id="lockInterruptibly中断响应"><a href="#lockInterruptibly中断响应" class="headerlink" title="lockInterruptibly中断响应"></a>lockInterruptibly中断响应</h4><p>对关键字<code>synchronized</code>而言，如果一个线程正在等待一把锁，那么结果只有两种：要么等待，要么获得锁。而<code>ReentrantLock</code>为我们提供了第三种可能，那就是响应中断（等着等着不等了），这种方式对处理死锁也是有帮助的。</p>
+<p>先演示一个死锁的发生：</p>
+<pre><code class="java">static ReentrantLock lock1 = new ReentrantLock();
+static ReentrantLock lock2 = new ReentrantLock();
+
+public static void main(String[] args) throws InterruptedException {
+    Task t1 = new Task(1);
+    Task t2 = new Task(2);
+    t1.start();
+    t2.start();
+    t1.join();
+}
+
+public static class Task extends Thread {
+    int lock; // 控制传入的锁
+
+    public Task(int lock) {
+        this.lock = lock;
+    }
+
+    @Override
+    public void run() {
+
+        if (lock == 1) {
+            try {
+                // 先获取lock1 再获取lock2
+                lock1.lock();
+                TimeUnit.SECONDS.sleep(1);
+                lock2.lock();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                lock1.unlock();
+                lock2.unlock();
+            }
+        } else {
+            try {
+                // 先获取lock2 再获取lock1
+                lock2.lock();
+                TimeUnit.SECONDS.sleep(1);
+                lock1.lock();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                lock2.unlock();
+                lock1.unlock();
+            }
+        }
+
+    }
+}</code></pre>
+<p>t1获得lock1的时候，t2同时获得了lock2；它们想获得的第二个锁被对方持有，因而死锁。我们将程序稍事修改，即可解决这个死锁问题。</p>
+<pre><code class="java">static ReentrantLock lock1 = new ReentrantLock();
+static ReentrantLock lock2 = new ReentrantLock();
+
+public static void main(String[] args) throws InterruptedException {
+    Task t1 = new Task(1);
+    Task t2 = new Task(2);
+    t1.start();
+    t2.start();
+    TimeUnit.SECONDS.sleep(2);
+    t1.interrupt();
+    System.out.println(&quot;t1.interrupt()&quot;);
+}
+
+public static class Task extends Thread {
+    int lock; // 控制传入的锁
+
+    public Task(int lock) {
+        this.lock = lock;
+        setName(&quot;lock-&quot; + lock);
+    }
+
+    @Override
+    public void run() {
+
+        try {
+
+            if (lock == 1) {
+                // 先获取lock1 再获取lock2
+                lock1.lockInterruptibly();
+                System.out.println(Thread.currentThread().getName() + &quot;已获得获取lock1&quot;);
+                TimeUnit.SECONDS.sleep(1);
+                System.out.println(Thread.currentThread().getName() + &quot;尝试获取lock2&quot;);
+                lock2.lockInterruptibly();
+                System.out.println(Thread.currentThread().getName() + &quot;获取lock2成功，执行完毕&quot;);
+            } else {
+                // 先获取lock2 再获取lock1
+                lock2.lockInterruptibly();
+                System.out.println(Thread.currentThread().getName() + &quot;已获得获取lock2&quot;);
+                TimeUnit.SECONDS.sleep(1);
+                System.out.println(Thread.currentThread().getName() + &quot;尝试获取lock1&quot;);
+                lock1.lockInterruptibly();
+                System.out.println(Thread.currentThread().getName() + &quot;获取lock1成功，执行完毕&quot;);
+            }
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            if (lock1.isHeldByCurrentThread()) {
+                lock1.unlock();
+            }
+            if (lock2.isHeldByCurrentThread()) {
+                lock2.unlock();
+            }
+        }
+    }
+}</code></pre>
+<p>线程可以响应中断，中断的线程会让出持有的锁，从而解决死锁的问题。这里还有个细节释放锁的时候通过<code>lock.isHeldByCurrentThread()</code>来判断，字如其意，如果这个锁被当前线程持有则释放。为什么需要这样判断，直接释放不可以吗？对不起不可以，因为线程中断的时候，锁已经被释放了，这里不判断的话会多次释放触发<code>IllegalMonitorStateException</code>。</p>
+<h4 id="tryLock锁申请等待限时"><a href="#tryLock锁申请等待限时" class="headerlink" title="tryLock锁申请等待限时"></a>tryLock锁申请等待限时</h4><pre><code class="java">boolean tryLock();
+boolean tryLock(long time, TimeUnit unit) throws InterruptedException;</code></pre>
+<p>这两个api看着都很直观，第一个尝试获取锁失败返回false，第二个则是在一定时间内尝试获取，超时后返回false。</p>
+<p>同样，利用这种机制也可以减少死锁的发生。</p>
+<h4 id="重入锁的好搭档Condition"><a href="#重入锁的好搭档Condition" class="headerlink" title="重入锁的好搭档Condition"></a>重入锁的好搭档Condition</h4><p>类似于翻版的<code>wait-notify</code>，我们知道等待通知机制是配合<code>synchronized</code>先获取锁，然后才能<code>wait-notify</code>。在重入锁里也提供了这样类似实现。使用<code>Condition</code>来控制等待通知。</p>
+<p>使用</p>
+<pre><code class="java">void await() throws InterruptedException;
+void awaitUninterruptibly();
+long awaitNanos(long nanosTimeout) throws InterruptedException;
+boolean await(long time, TimeUnit unit) throws InterruptedException;
+boolean awaitUntil(Date deadline) throws InterruptedException;
+void signal();
+void signalAll();</code></pre>
+<p>以上方法的含义如下：</p>
+<ul>
+<li><code>await()</code>方法会使当前线程等待，并释放当前锁。当其他线程正确使用了<code>signal()</code>或者<code>signalAll()</code>会返回。当前线程被中断，也能跳出等待。这和<code>Object.wait()</code>类似。</li>
+<li><code>awaitUninterruptibly()</code>不会在等待过程中响应中断</li>
+<li><code>signal()</code>唤醒一个正在等待的线程，<code>signalAll()</code>唤醒所有。这和<code>Object.notify()/notifyAll()</code>类似。</li>
+</ul>
+<p>来看一个示例：</p>
+<pre><code class="java">static ReentrantLock lock = new ReentrantLock();
+static Condition condition = lock.newCondition();
+
+public static void main(String[] args) throws InterruptedException {
+
+    Task task1 = new Task();
+    Task task2 = new Task();
+
+    task2.start();
+    task1.start();
+
+    TimeUnit.SECONDS.sleep(3);
+    try {
+        lock.lock();
+    //    condition.signal();
+        condition.signalAll(); //通知所有
+        System.out.println(&quot;已通知&quot;);
+    } finally {
+        TimeUnit.SECONDS.sleep(2);
+        lock.unlock();
+    }
+}
+
+public static class Task extends Thread {
+    @Override
+    public void run() {
+        try {
+            lock.lock();
+            condition.await();
+            System.out.println(getName() + &quot; over..&quot;);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            lock.unlock();
+        }
+    }
+}</code></pre>
+<p>console output:</p>
+<pre><code>已通知
+Thread-1 over..
+Thread-0 over..</code></pre><p>程序运行的效果是3秒后控制台输出<code>已通知</code>，再过2秒，输出<code>Thread-0 over..和Thread-0 over..</code>。可以看出这点和我们使用等待通知是类似的（notify方法放在方法的最后一行）。通知时只有释放了锁，正在等待的线程才能恢复运行。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>今天我们学习了J.U.C中重要的可重入锁，它提供了更高的灵活性，可一定程度避免死锁，同时还有它的好搭档<code>Condition</code>。可以在很多软件中看见它的使用，下次我们将从源码层面分析其实现。</p>
+
+            </div>
+            <hr/>
+
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            <div class="reprint">
+                <p>
+                    <span class="reprint-tip">转载请注明: </span>
+                    <a href="https://pleuvoir.github.io" class="b-link-green">撄而后成</a>
+                    <i class="fa fa-angle-right fa-lg fa-fw text-color"></i>
+                    <a href="/2019/04/12/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-%E5%8F%AF%E9%87%8D%E5%85%A5%E9%94%81ReentrantLock/" class="b-link-green">并发编程-ReentrantLock</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    
+        <link rel="stylesheet" href="/libs/gitalk/gitalk.css">
+<link rel="stylesheet" href="/css/my-gitalk.css">
+
+<div class="card gitalk-card" data-aos="fade-up">
+    <div id="gitalk-container" class="card-content"></div>
+</div>
+
+<script src="/libs/gitalk/gitalk.min.js"></script>
+<script>
+    let gitalk = new Gitalk({
+        clientID: '9b46722e838fce0cf835',
+        clientSecret: 'b1dc5f5d1f5cdd0e9d0cf74eb2984b15a575dd22',
+        repo: 'pleuvoir.github.io',
+        owner: 'pleuvoir',
+        admin: ["pleuvoir"],
+        id: '2019-04-12T12-00-00',
+        distractionFreeMode: false  // Facebook-like distraction free mode
+    });
+
+    gitalk.render('gitalk-container');
+</script>
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">上一篇</div>
+            <div class="card">
+                <a href="/2019/04/13/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-%E8%AF%BB%E5%86%99%E9%94%81/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="并发编程-读写锁">
+                        
+                        <span class="card-title">并发编程-读写锁</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary">今天我们来看看，JDK提供的另外两种锁，读写锁，适用于读多写少的情况下使用，来减少并发冲突。
+ReadWriteLockReadWriteLock是JDK5中提供的读写分离锁。读写分离锁可以有效减少锁竞争，提升系统性能。如果使用重入锁Ree</div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2019-04-13
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%8A%80%E6%9C%AF/" class="post-category" target="_blank">
+                                    技术
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/java/" target="_blank">
+                        <span class="chip bg-color">java</span>
+                    </a>
+                    
+                    <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" target="_blank">
+                        <span class="chip bg-color">多线程</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">下一篇</div>
+            <div class="card">
+                <a href="/2019/04/11/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-synchronized/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/23.jpg" class="responsive-img" alt="并发编程-synchronized">
+                        
+                        <span class="card-title">并发编程-synchronized</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary">今天我们来看看并发编程的内置锁：synchronized
+用法synchronized是一种使用简单的锁关键字，简单来说用法大致分为三种：
+
+指定加锁对象：给给定对象加锁，进入同步代码前要获得给定对象的锁。
+直接作用于方法实例：相当于对当前</div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-04-11
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%8A%80%E6%9C%AF/" class="post-category" target="_blank">
+                                    技术
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/java/" target="_blank">
+                        <span class="chip bg-color">java</span>
+                    </a>
+                    
+                    <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" target="_blank">
+                        <span class="chip bg-color">多线程</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
+    </div>
+    <div class="col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <h4>目录</h4>
+            <div id="toc-content">
+                <ol class="post-toc"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#用法"><span class="post-toc-text">用法</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#lock"><span class="post-toc-text">lock</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#lockInterruptibly中断响应"><span class="post-toc-text">lockInterruptibly中断响应</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#tryLock锁申请等待限时"><span class="post-toc-text">tryLock锁申请等待限时</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#重入锁的好搭档Condition"><span class="post-toc-text">重入锁的好搭档Condition</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#总结"><span class="post-toc-text">总结</span></a></li></ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        let tocLinks = $('#toc-content a');
+        let setTocLinkActive = function (jqObj) {
+            tocLinks.removeClass('active');
+            jqObj.addClass('active');
+        };
+
+        // 监听点击TOC目录.
+        tocLinks.on('click', function () {
+            setTocLinkActive($(this));
+        });
+
+        let titleTopArr = [];
+        $('#articleContent').find('h1, h2, h3, h4, h5, h6').each(function () {
+            titleTopArr.push({'id': $(this).attr('id'), 'top': Math.round($(this).offset().top)});
+        });
+        let titleLen = titleTopArr.length;
+
+        /* 监听滚动条.*/
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+
+            /* add post toc fixed. */
+            if (scroll > 240) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+
+            /** 以下代码为动态设置TOC激活高亮的目录. */
+            if (titleLen === 0) {
+                return;
+            }
+
+            let firstTitleObj = titleTopArr[0];
+            if (firstTitleObj.top > scroll) {
+                return;
+            } else if (firstTitleObj.top === scroll) {
+                setTocLinkActive($('#toc-content a[href="#' + firstTitleObj.id + '"]'));
+                return;
+            }
+
+            let lastTitleObj = titleTopArr[titleLen - 1];
+            if (lastTitleObj.top <= scroll) {
+                setTocLinkActive($('#toc-content a[href="#' + lastTitleObj.id + '"]'));
+                return;
+            }
+
+            for (let i = 0; i < titleLen; i++) {
+                if (titleTopArr[i].top > scroll) {
+                    setTocLinkActive($('#toc-content a[href="#' + titleTopArr[i - 1].id + '"]'));
+                    break;
+                }
+            }
+        });
+    });
+</script>
+    
+
+</main>
+
+<footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+             powered by pleuvoir using  
+            <a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">hexo-theme-matery</a>
+        </div>
+        <div class="col s12 m4 l4 social-link"><a href="https://github.com/pleuvoir" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+    <i class="fa fa-github"></i>
+</a>
+<a href="mailto:pleuvior@foxmail.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+    <i class="fa fa-envelope-open"></i>
+</a>
+<a href="#!" class="tooltipped" data-tooltip="QQ联系我: 617016730" data-position="top" data-delay="50">
+    <i class="fa fa-qq"></i>
+</a>
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+<!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title">搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input" autofocus="">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+</script>
+<!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+<script src="/libs/materialize/js/materialize.min.js"></script>
+<script src="/libs/masonry/masonry.pkgd.min.js"></script>
+<script src="/libs/aos/aos.js"></script>
+<script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+<script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+<script src="/js/matery.js"></script>
+</body>
+</html>
